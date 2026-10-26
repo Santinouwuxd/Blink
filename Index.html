@@ -1,0 +1,1193 @@
+!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blink - Cuida tus ojos y tu tiempo en pantalla</title>
+    <style>
+        /* ==========================================
+           VARIABLES CSS & TEMAS (Dark/Light)
+           ========================================== */
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-primary: #38bdf8;
+            --accent-secondary: #a855f7;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --border-color: #334155;
+            --glass-bg: rgba(15, 23, 42, 0.75);
+            --shadow-glow: 0 0 25px rgba(56, 189, 248, 0.25);
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent-primary: #0284c7;
+            --accent-secondary: #9333ea;
+            --border-color: #e2e8f0;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --shadow-glow: 0 10px 25px rgba(2, 132, 199, 0.15);
+        }
+
+        /* RESETEO BÁSICO */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* HEADER & NAVEGACIÓN */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.8rem 1.5rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--accent-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            color: var(--text-main);
+            background: var(--bg-secondary);
+        }
+
+        .nav-btn.active {
+            color: var(--text-main);
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .theme-toggle-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .theme-toggle-btn:hover {
+            transform: scale(1.08);
+            border-color: var(--accent-primary);
+        }
+
+        /* NAVEGACIÓN MOBILE */
+        .mobile-menu-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        main {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* COMPONENTES REUTILIZABLES */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.8rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-glow);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.92;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-main), var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* INICIO / HERO SECTION */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            padding: 3rem 0;
+        }
+
+        .hero-text h1 {
+            font-size: 3.2rem;
+            line-height: 1.15;
+            margin-bottom: 1.2rem;
+            font-weight: 900;
+        }
+
+        .hero-text h1 span {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-graphic {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-eye-card {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(168, 85, 247, 0.05) 70%, transparent 100%);
+            border: 2px dashed var(--accent-primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: float 6s ease-in-out infinite;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            border-top: 4px solid var(--accent-primary);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-primary);
+        }
+
+        /* SECCIÓN INFORMACIÓN Y CONSEJOS */
+        .filter-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--accent-primary);
+            color: #fff;
+            border-color: var(--accent-primary);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .info-tag {
+            align-self: flex-start;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .tag-eyestrain { background: rgba(56, 189, 248, 0.2); color: var(--accent-primary); }
+        .tag-habits { background: rgba(168, 85, 247, 0.2); color: var(--accent-secondary); }
+        .tag-mental { background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald); }
+
+        /* CUESTIONARIO INTERACTIVO */
+        .quiz-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .quiz-progress {
+            width: 100%;
+            height: 10px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .quiz-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.3s ease;
+        }
+
+        .quiz-question {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option-btn {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.2rem;
+            color: var(--text-main);
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent-primary);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .quiz-result {
+            display: none;
+            text-align: center;
+        }
+
+        .badge-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* TEMPORIZADOR DE PAUSAS */
+        .timer-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .timer-display-wrap {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 0 auto 2rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-svg circle {
+            fill: none;
+            stroke-width: 10;
+        }
+
+        .timer-bg-circle {
+            stroke: var(--bg-secondary);
+        }
+
+        .timer-progress-circle {
+            stroke: var(--accent-primary);
+            stroke-dasharray: 753; /* 2 * PI * r (r=120) */
+            stroke-dashoffset: 0;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear, stroke 0.3s;
+        }
+
+        .timer-text {
+            font-size: 3.5rem;
+            font-weight: 800;
+            font-family: monospace;
+            z-index: 2;
+        }
+
+        .activity-box {
+            background: var(--bg-secondary);
+            border: 1px dashed var(--accent-primary);
+            border-radius: var(--radius-md);
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* DASHBOARD / RESULTADOS */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .dash-metric {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .dash-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(56, 189, 248, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--accent-primary);
+        }
+
+        .badge-list {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .badge-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.4;
+            filter: grayscale(1);
+            transition: var(--transition);
+        }
+
+        .badge-item.unlocked {
+            opacity: 1;
+            filter: grayscale(0);
+            border-color: var(--accent-amber);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        /* RESPONSIVE DESIGN (MEDIA QUERIES) */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .hero-text h1 {
+                font-size: 2.4rem;
+            }
+
+            .hero-cta {
+                justify-content: center;
+            }
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--bg-secondary);
+                flex-direction: column;
+                padding: 1rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ENCABEZADO Y NAVEGACIÓN -->
+    <header>
+        <div class="nav-container">
+            <div class="logo" onclick="switchSection('inicio')">
+                <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                Blink
+            </div>
+
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Abrir Menú">☰</button>
+
+            <ul class="nav-links" id="navLinks">
+                <li><button class="nav-btn active" onclick="switchSection('inicio')">Inicio</button></li>
+                <li><button class="nav-btn" onclick="switchSection('info')">Info & Consejos</button></li>
+                <li><button class="nav-btn" onclick="switchSection('quiz')">Cuestionario</button></li>
+                <li><button class="nav-btn" onclick="switchSection('timer')">Temporizador</button></li>
+                <li><button class="nav-btn" onclick="switchSection('dashboard')">Mis Resultados</button></li>
+            </ul>
+
+            <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()" title="Cambiar Tema">🌙</button>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main>
+
+        <!-- SECCIÓN 1: INICIO -->
+        <section id="inicio" class="section active">
+            <div class="hero">
+                <div class="hero-text">
+                    <h1>Tu salud visual y digital <span>en equilibrio.</span></h1>
+                    <p>Pasa tiempo en tus pantallas sin fatiga, molestias ni pérdida de enfoque. Aprende a dominar tus hábitos digitales antes de que te dominen a ti.</p>
+                    <div class="hero-cta">
+                        <button class="btn-primary" onclick="switchSection('quiz')">Diagnosticar mis hábitos 🚀</button>
+                        <button class="btn-secondary" onclick="switchSection('timer')">Iniciar Pausa Ahora ⏱️</button>
+                    </div>
+                </div>
+                <div class="hero-graphic">
+                    <div class="hero-eye-card">
+                        <span style="font-size: 3.5rem;">👁️✨</span>
+                        <h3 style="margin-top: 10px;">Regla 20-20-20</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">Cada 20 min, mira a 6 metros (20 pies) por 20 segundos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-stats">
+                <div class="card stat-card">
+                    <div class="stat-number">7+ hs</div>
+                    <p>Promedio diario de adolescentes en pantallas</p>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number">60%</div>
+                    <p>Sufre fatiga visual digital o fatiga ocular</p>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number">20 sec</div>
+                    <p>De descanso que bastan para relajar tus ojos</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: INFORMACIÓN Y CONSEJOS -->
+        <section id="info" class="section">
+            <h2 class="section-title">Información & Consejos</h2>
+            <p class="section-subtitle">Conoce cómo impacta la luz azul, la postura y el tiempo continuo en tu cuerpo.</p>
+
+            <div class="filter-container">
+                <button class="filter-btn active" onclick="filterInfo('all')">Todos</button>
+                <button class="filter-btn" onclick="filterInfo('eyestrain')">Salud Visual</button>
+                <button class="filter-btn" onclick="filterInfo('habits')">Hábitos Sanos</button>
+                <button class="filter-btn" onclick="filterInfo('mental')">Bienestar Mental</button>
+            </div>
+
+            <div class="info-grid">
+                <div class="card info-card" data-category="eyestrain">
+                    <span class="info-tag tag-eyestrain">Salud Visual</span>
+                    <h3>¿Qué es el Parpadeo Incompleto?</h3>
+                    <p>Al mirar pantallas, nuestra frecuencia de parpadeo se reduce hasta en un 50%. Esto provoca sequedad, ardor y visión borrosa al final del día.</p>
+                </div>
+                <div class="card info-card" data-category="habits">
+                    <span class="info-tag tag-habits">Hábitos Sanos</span>
+                    <h3>Efecto de la Luz Azul</h3>
+                    <p>La luz de los dispositivos suprime la melatonina, la hormona del sueño. Evita el uso de celulares al menos 45 minutos antes de ir a dormir.</p>
+                </div>
+                <div class="card info-card" data-category="mental">
+                    <span class="info-tag tag-mental">Bienestar Mental</span>
+                    <h3>FOMO (Fear of Missing Out)</h3>
+                    <p>La ansiedad por estar desconectado te lleva a revisar el celular de forma impulsiva. Activa el modo 'No Molestar' durante el estudio.</p>
+                </div>
+                <div class="card info-card" data-category="eyestrain">
+                    <span class="info-tag tag-eyestrain">Salud Visual</span>
+                    <h3>Ajuste de Iluminación</h3>
+                    <p>Nunca uses pantallas totalmente a oscuras. La diferencia extrema de brillo entre el entorno y la pantalla causa fatiga acelerada.</p>
+                </div>
+                <div class="card info-card" data-category="habits">
+                    <span class="info-tag tag-habits">Hábitos Sanos</span>
+                    <h3>Micro-Pausas Activas</h3>
+                    <p>No esperes a estar agotado. Levantarte de la silla 2 minutos cada hora mejora tu circulación, postura y concentración.</p>
+                </div>
+                <div class="card info-card" data-category="mental">
+                    <span class="info-tag tag-mental">Bienestar Mental</span>
+                    <h3>Notificaciones Conscientes</h3>
+                    <p>Desactiva las notificaciones secundarias de redes sociales. Elige tú cuándo mirar las apps, no dejes que ellas te elijan a ti.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: CUESTIONARIO INTERACTIVO -->
+        <section id="quiz" class="section">
+            <div class="quiz-container">
+                <h2 class="section-title" style="text-align: center;">Cuestionario de Hábitos</h2>
+                <p class="section-subtitle" style="text-align: center;">Descubre tu nivel de equilibrio digital respondiendo con honestidad.</p>
+
+                <div class="card">
+                    <div id="quizBox">
+                        <div class="quiz-progress">
+                            <div class="quiz-progress-bar" id="quizProgressBar"></div>
+                        </div>
+                        <div class="quiz-question" id="quizQuestionText">Cargando pregunta...</div>
+                        <div class="quiz-options" id="quizOptionsContainer"></div>
+                    </div>
+
+                    <div id="quizResult" class="quiz-result">
+                        <div class="badge-icon" id="resBadgeIcon">🎯</div>
+                        <h3 id="resTitle" style="font-size: 1.8rem; margin-bottom: 0.5rem;">Tu Resultado</h3>
+                        <p id="resDescription" style="color: var(--text-muted); margin-bottom: 1.5rem;"></p>
+                        <div id="resRecommendations" style="text-align: left; background: var(--bg-secondary); padding: 1.2rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;"></div>
+                        <button class="btn-primary" onclick="resetQuiz()">Repetir Cuestionario 🔄</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: TEMPORIZADOR DE PAUSAS -->
+        <section id="timer" class="section">
+            <div class="timer-container">
+                <h2 class="section-title">Temporizador de Pausas</h2>
+                <p class="section-subtitle">Aplica la regla 20-20-20 o establece sesiones de estudio con descansos garantizados.</p>
+
+                <div class="card">
+                    <div class="timer-controls">
+                        <button class="btn-secondary" onclick="setTimerDuration(20)">20 min (Trabajo)</button>
+                        <button class="btn-secondary" onclick="setTimerDuration(45)">45 min (Estudio)</button>
+                        <button class="btn-secondary" onclick="setTimerDuration(1)">1 min (Prueba rápida)</button>
+                    </div>
+
+                    <div class="timer-display-wrap">
+                        <svg class="timer-svg" viewBox="0 0 260 260">
+                            <circle class="timer-bg-circle" cx="130" cy="130" r="120"></circle>
+                            <circle class="timer-progress-circle" id="timerCircle" cx="130" cy="130" r="120"></circle>
+                        </svg>
+                        <div class="timer-text" id="timerText">20:00</div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="btn-primary" id="startTimerBtn" onclick="toggleTimer()">Iniciar Pausa ⏱️</button>
+                        <button class="btn-secondary" onclick="resetTimer()">Reiniciar 🔄</button>
+                    </div>
+
+                    <div class="activity-box" id="activityBox">
+                        <h4 style="color: var(--accent-primary); margin-bottom: 5px;">🎉 ¡Tiempo de descanso!</h4>
+                        <p id="activityText">Cierra los ojos y respira hondo durante 20 segundos.</p>
+                        <button class="btn-secondary" style="margin-top: 10px; padding: 5px 12px; font-size: 0.85rem;" onclick="generateActivity()">Proponer otra actividad 🎲</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 5: DASHBOARD / MIS RESULTADOS -->
+        <section id="dashboard" class="section">
+            <h2 class="section-title">Mis Resultados & Logros</h2>
+            <p class="section-subtitle">Tus avances se guardan automáticamente en tu navegador local.</p>
+
+            <div class="dashboard-grid">
+                <div class="card dash-metric">
+                    <div class="dash-icon">🎯</div>
+                    <div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Último Diagnóstico</div>
+                        <div style="font-size: 1.3rem; font-weight: 700;" id="dashQuizScore">Sin realizar</div>
+                    </div>
+                </div>
+
+                <div class="card dash-metric">
+                    <div class="dash-icon">⚡</div>
+                    <div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Pausas Completadas</div>
+                        <div style="font-size: 1.3rem; font-weight: 700;" id="dashPausesCount">0 sesiones</div>
+                    </div>
+                </div>
+
+                <div class="card dash-metric">
+                    <div class="dash-icon">🔥</div>
+                    <div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Racha Actual</div>
+                        <div style="font-size: 1.3rem; font-weight: 700;" id="dashStreak">0 días</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Insignias de Progreso</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Cumple metas de pausa y autoevaluación para desbloquearlas.</p>
+                
+                <div class="badge-list">
+                    <div class="badge-item" id="badge-quiz">
+                        <span style="font-size: 1.5rem;">📝</span>
+                        <div>
+                            <strong>Autoconsciente</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Completa el test</div>
+                        </div>
+                    </div>
+                    <div class="badge-item" id="badge-first-pause">
+                        <span style="font-size: 1.5rem;">👁️</span>
+                        <div>
+                            <strong>Primer Blink</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Completa 1 pausa</div>
+                        </div>
+                    </div>
+                    <div class="badge-item" id="badge-master-pause">
+                        <span style="font-size: 1.5rem;">🏆</span>
+                        <div>
+                            <strong>Ojos Descansados</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Completa 5 pausas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PIE DE PÁGINA -->
+    <footer>
+        <p>Blink - Proyecto de Ciudadanía Digital y Salud en Pantallas &copy; 2026</p>
+        <p style="font-size: 0.8rem; margin-top: 5px;">Desarrollado para estudiantes. Sin recopilación de datos personales.</p>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        /* ==========================================
+           1. ESTADO DE LA APLICACIÓN & LOCALSTORAGE
+           ========================================== */
+        const APP_STATE = {
+            theme: localStorage.getItem('blink_theme') || 'dark',
+            quizScore: JSON.parse(localStorage.getItem('blink_quiz_result')) || null,
+            pausesCompleted: parseInt(localStorage.getItem('blink_pauses')) || 0,
+            lastPauseDate: localStorage.getItem('blink_last_date') || null,
+            streak: parseInt(localStorage.getItem('blink_streak')) || 0
+        };
+
+        // Preguntas del cuestionario
+        const QUIZ_QUESTIONS = [
+            {
+                q: "¿Cuántas horas al día estimas que pasas frente a una pantalla (celular, PC, TV)?",
+                options: [
+                    { text: "Menos de 3 horas", score: 3 },
+                    { text: "Entre 3 y 6 horas", score: 2 },
+                    { text: "Más de 6 horas", score: 1 }
+                ]
+            },
+            {
+                q: "¿Con qué frecuencia sientes cansancio, ardor o sequedad en los ojos?",
+                options: [
+                    { text: "Rara vez o nunca", score: 3 },
+                    { text: "A veces al final del día", score: 2 },
+                    { text: "Muy seguido o casi siempre", score: 1 }
+                ]
+            },
+            {
+                q: "¿Haces pausas mientras estudias o usas el celular por mucho tiempo?",
+                options: [
+                    { text: "Sí, aplico pausas cortas seguidas", score: 3 },
+                    { text: "Solo cuando ya me duele la cabeza/vista", score: 2 },
+                    { text: "No, me olvido por completo", score: 1 }
+                ]
+            },
+            {
+                q: "¿Usas tu celular o pantallas antes de dormir con las luces apagadas?",
+                options: [
+                    { text: "Casi nunca o evito pantallas de noche", score: 3 },
+                    { text: "A veces, pero con brillo bajo", score: 2 },
+                    { text: "Siempre, es lo último que hago en la cama", score: 1 }
+                ]
+            }
+        ];
+
+        // Sugerencias de descansos
+        const BREAK_ACTIVITIES = [
+            "Parpadea lentamente 10 veces seguidas para rehidratar tus ojos.",
+            "Mira fijamente por la ventana hacia el punto más lejano durante 20 segundos.",
+            "Levántate, estira tus brazos hacia el techo y gira suavemente el cuello.",
+            "Cierra los ojos y cubre suavemente tu rostro con las palmas de tus manos entibiadas.",
+            "Camina a tomar un vaso de agua sin llevar el celular contigo."
+        ];
+
+        /* ==========================================
+           2. NAVEGACIÓN Y TEMAS
+           ========================================== */
+        function initApp() {
+            document.documentElement.setAttribute('data-theme', APP_STATE.theme);
+            updateThemeIcon();
+            updateDashboardUI();
+            initQuiz();
+        }
+
+        function switchSection(sectionId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            const targetSection = document.getElementById(sectionId);
+            if(targetSection) targetSection.classList.add('active');
+
+            // Actualizar botón de menú navegable activo
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(btn => 
+                btn.getAttribute('onclick').includes(sectionId)
+            );
+            if(activeBtn) activeBtn.classList.add('active');
+
+            // Cerrar menú móvil si está abierto
+            document.getElementById('navLinks').classList.remove('open');
+        }
+
+        function toggleTheme() {
+            APP_STATE.theme = APP_STATE.theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', APP_STATE.theme);
+            localStorage.setItem('blink_theme', APP_STATE.theme);
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const btn = document.getElementById('themeBtn');
+            btn.textContent = APP_STATE.theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('navLinks').classList.toggle('open');
+        }
+
+        /* ==========================================
+           3. FILTRADO DE INFORMACIÓN Y CONSEJOS
+           ========================================== */
+        function filterInfo(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const cards = document.querySelectorAll('.info-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        /* ==========================================
+           4. LÓGICA CUESTIONARIO INTERACTIVO
+           ========================================== */
+        let currentQuestionIdx = 0;
+        let totalQuizScore = 0;
+
+        function initQuiz() {
+            currentQuestionIdx = 0;
+            totalQuizScore = 0;
+            document.getElementById('quizBox').style.display = 'block';
+            document.getElementById('quizResult').style.display = 'none';
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = QUIZ_QUESTIONS[currentQuestionIdx];
+            document.getElementById('quizQuestionText').textContent = `${currentQuestionIdx + 1}. ${q.q}`;
+            
+            // Barra de progreso
+            const progressPct = ((currentQuestionIdx) / QUIZ_QUESTIONS.length) * 100;
+            document.getElementById('quizProgressBar').style.width = `${progressPct}%`;
+
+            const container = document.getElementById('quizOptionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `<span>${opt.text}</span> <span>➔</span>`;
+                btn.onclick = () => selectOption(opt.score);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(score) {
+            totalQuizScore += score;
+            currentQuestionIdx++;
+
+            if (currentQuestionIdx < QUIZ_QUESTIONS.length) {
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('quizBox').style.display = 'none';
+            const resultBox = document.getElementById('quizResult');
+            resultBox.style.display = 'block';
+
+            let title = "", desc = "", icon = "", recs = [];
+
+            if (totalQuizScore >= 10) {
+                icon = "🟢";
+                title = "¡Excelente Equilibrio Digital!";
+                desc = "Tienes muy buenos hábitos de descanso y cuidas activamente tu visión.";
+                recs = [
+                    "Sigue manteniendo la regla 20-20-20.",
+                    "Comparte tus hábitos con tus compañeros.",
+                    "Sigue desconectando antes de ir a dormir."
+                ];
+            } else if (totalQuizScore >= 7) {
+                icon = "🟡";
+                title = "Hábitos Aceptables (Con margen de mejora)";
+                desc = "Te desenvuelves bien, pero a veces pasas mucho tiempo sin hacer descansos.";
+                recs = [
+                    "Activa el temporizador de pausas durante el estudio.",
+                    "Reduce el brillo de tus dispositivos por la noche.",
+                    "Parpadea conscientemente cuando sientas sequedad."
+                ];
+            } else {
+                icon = "🔴";
+                title = "Alerta: Fatiga Digital Elevada";
+                desc = "Estás exponiendo tus ojos a jornadas prolongadas sin el descanso adecuado.";
+                recs = [
+                    "Oblígate a hacer pausas de 5 minutos cada hora.",
+                    "Evita usar el teléfono en la cama con luces apagadas.",
+                    "Prueba nuestro temporizador de descanso diariamente."
+                ];
+            }
+
+            document.getElementById('resBadgeIcon').textContent = icon;
+            document.getElementById('resTitle').textContent = title;
+            document.getElementById('resDescription').textContent = desc;
+
+            const recList = document.getElementById('resRecommendations');
+            recList.innerHTML = "<strong>Recomendaciones clave:</strong><ul style='margin-left:20px; margin-top:8px;'>" + 
+                recs.map(r => `<li style='margin-bottom:4px;'>${r}</li>`).join('') + "</ul>";
+
+            // Guardar en localStorage
+            APP_STATE.quizScore = { score: totalQuizScore, level: title };
+            localStorage.setItem('blink_quiz_result', JSON.stringify(APP_STATE.quizScore));
+            updateDashboardUI();
+        }
+
+        function resetQuiz() {
+            initQuiz();
+        }
+
+        /* ==========================================
+           5. TEMPORIZADOR DE PAUSAS Y AUDIO SINTETIZADO
+           ========================================== */
+        let timerInterval = null;
+        let totalSeconds = 20 * 60;
+        let remainingSeconds = 20 * 60;
+        let isTimerRunning = false;
+
+        function setTimerDuration(minutes) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            document.getElementById('startTimerBtn').textContent = "Iniciar Pausa ⏱️";
+            document.getElementById('activityBox').style.display = 'none';
+
+            totalSeconds = minutes * 60;
+            remainingSeconds = totalSeconds;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(remainingSeconds / 60);
+            const secs = remainingSeconds % 60;
+            document.getElementById('timerText').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            // Actualizar círculo SVG
+            const circle = document.getElementById('timerCircle');
+            const circumference = 2 * Math.PI * 120; // 753.98
+            const offset = circumference - (remainingSeconds / totalSeconds) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('startTimerBtn');
+            if (isTimerRunning) {
+                clearInterval(timerInterval);
+                isTimerRunning = false;
+                btn.textContent = "Continuar ⏱️";
+            } else {
+                isTimerRunning = true;
+                btn.textContent = "Pausar ⏸️";
+                timerInterval = setInterval(() => {
+                    if (remainingSeconds > 0) {
+                        remainingSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        btn.textContent = "Iniciar Pausa ⏱️";
+                        onTimerComplete();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            document.getElementById('startTimerBtn').textContent = "Iniciar Pausa ⏱️";
+            document.getElementById('activityBox').style.display = 'none';
+            remainingSeconds = totalSeconds;
+            updateTimerDisplay();
+        }
+
+        function onTimerComplete() {
+            playBeepSound();
+            generateActivity();
+            document.getElementById('activityBox').style.display = 'block';
+
+            // Actualizar Estadísticas
+            APP_STATE.pausesCompleted += 1;
+            localStorage.setItem('blink_pauses', APP_STATE.pausesCompleted);
+            
+            // Actualizar racha
+            const today = new Date().toDateString();
+            if (APP_STATE.lastPauseDate !== today) {
+                APP_STATE.streak += 1;
+                APP_STATE.lastPauseDate = today;
+                localStorage.setItem('blink_last_date', today);
+                localStorage.setItem('blink_streak', APP_STATE.streak);
+            }
+
+            updateDashboardUI();
+        }
+
+        function generateActivity() {
+            const randomIdx = Math.floor(Math.random() * BREAK_ACTIVITIES.length);
+            document.getElementById('activityText').textContent = BREAK_ACTIVITIES[randomIdx];
+        }
+
+        // Sintetizador de audio nativo con Web Audio API (Sin archivos de sonido externos)
+        function playBeepSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Nota D5
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3); // Nota A5
+
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.8);
+            } catch (e) {
+                console.log("Audio Web API no soportada o bloqueada por el navegador.");
+            }
+        }
+
+        /* ==========================================
+           6. DASHBOARD & INSIGNIAS (BADGES)
+           ========================================== */
+        function updateDashboardUI() {
+            // Resultado de Cuestionario
+            const scoreElem = document.getElementById('dashQuizScore');
+            if (APP_STATE.quizScore) {
+                scoreElem.textContent = `${APP_STATE.quizScore.score}/12 Puntos`;
+                document.getElementById('badge-quiz').classList.add('unlocked');
+            } else {
+                scoreElem.textContent = "Sin realizar";
+            }
